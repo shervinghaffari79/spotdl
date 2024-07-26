@@ -1,1 +1,1 @@
-worker: python spotdl.py
+web: python spotdl.py
