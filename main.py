@@ -1,12 +1,12 @@
 from telegram import *
 from telegram.ext import *
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import spotdl
-import re
-import os
-import time
-import subprocess
+# import spotipy
+# from spotipy.oauth2 import SpotifyClientCredentials
+# import spotdl
+# import re
+# import os
+# import time
+# import subprocess
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id='fa032c00d47049548b789d364180b116',
                                                            client_secret='b456da8e4acd4cf8aca1a61ef111643f'))
@@ -29,13 +29,13 @@ def download_from_spotify(url, update: Update):
     Download track from Spotify using spotdl, updating progress in Telegram.
     """
     command = f"spotdl {url}"
-    
+
     # Start the subprocess
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    
+
     # Send initial message to user
     message = update.message.reply_text('Starting download')
-    
+
 
     dots = 0
     try:
@@ -55,7 +55,7 @@ def download_from_spotify(url, update: Update):
         update.message.bot.edit_message_text(chat_id=update.message.chat_id, message_id=message.message_id, text="Download complete!")
     else:
         update.message.reply_text("Download failed. Please try again.")
-    
+
 
 def extract_track_id(url):
     """
@@ -114,7 +114,7 @@ def inline_query(update: Update, context: CallbackContext):
     query = update.inline_query.query
     query = query.split()[1:]
     if not query:
-        return 
+        return
     try:
         track_results = search_tracks(query)
         results = [
@@ -128,7 +128,7 @@ def inline_query(update: Update, context: CallbackContext):
                 thumb_url=track['image_url']
             ) for track in track_results
         ]
-        
+
         update.inline_query.answer(results, cache_time=10)
     except Exception as e:
         print(f"Error processing the inline query: {e}")
@@ -139,7 +139,7 @@ def inline_query(update: Update, context: CallbackContext):
 def handle_message(update: Update, context: CallbackContext) -> None:
     url = update.message.text
     track_details = get_track_details(url)
-    
+
     if track_details:
         # Send photo
         image_url = track_details['image_url']
@@ -150,12 +150,12 @@ def handle_message(update: Update, context: CallbackContext) -> None:
             except Exception as e:
                 update.message.reply_text(f'Failed to send photo: {e}')
 
-        file_path = f"{track_details['artists'][0]} - {track_details['name']}.mp3"  # Temporary file path
+        file_path = f"/content/{track_details['artists'][0]} - {track_details['name']}.mp3"  # Temporary file path
         try:
             download_from_spotify(url,update)
             with open(file_path, 'rb') as audio_file:
                 update.message.reply_audio(audio_file)
-          
+
         except Exception as e:
             update.message.reply_text(f'Failed to Download: {e}')
     else:
@@ -163,13 +163,13 @@ def handle_message(update: Update, context: CallbackContext) -> None:
 
 def main() -> None:
 
-    updater = Updater('7459732993:AAEKhG0yY8c1kYRcesEgsyccNDHEKV9vkok')
-    
+    updater = Updater('6182770161:AAHK7Wppu5TZv_CEHmANdPOGrWdbybQlQtM')
+
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
-    dp.add_handler(InlineQueryHandler(inline_query))
+    # dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    # dp.add_handler(InlineQueryHandler(inline_query))
 
 
     updater.start_polling()
